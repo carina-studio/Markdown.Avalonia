@@ -9,11 +9,11 @@
     <AssemblyName>Markdown.Avalonia</AssemblyName>
     <RootNamespace>Markdown.Avalonia</RootNamespace>
     <Version>$(PackageVersion)</Version>
-    <Authors>Bevan Arps(original); whistyun</Authors>
+    <Authors>Bevan Arps(original); whistyun; Carina Studio</Authors>
     <Company />
     <Description>Markdown Controls for Avalonia</Description>
-    <Copyright>Copyright (c) 2010 Bevan Arps, 2020 whistyun</Copyright>
-    <PackageProjectUrl>https://github.com/whistyun/Markdown.Avalonia</PackageProjectUrl>
+    <Copyright>Copyright (c) 2010 Bevan Arps, 2020 whistyun, 2024 Carina Studio</Copyright>
+    <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>Markdown.Avalonia.Tight.md</PackageReadmeFile>
     <PackageTags>Markdown Avalonia Avaloniaui</PackageTags>

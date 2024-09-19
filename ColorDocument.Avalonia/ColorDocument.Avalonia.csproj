@@ -5,13 +5,12 @@
   <PropertyGroup>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
     <Version>$(PackageVersion)</Version>
-    <Authors>Bevan Arps(original); whistyun</Authors>
+    <Authors>Bevan Arps(original); whistyun; Carina Studio</Authors>
     <PackageId>CarinaStudio.ColorDocument.Avalonia</PackageId>
 
     <Version>$(PackageVersion)</Version>
-    <Authors>whistyun</Authors>
-    <Copyright>Copyright (c) 2024 whistyun</Copyright>
-    <PackageProjectUrl>https://github.com/whistyun/Markdown.Avalonia/tree/master/ColorDocument.Avalonia/</PackageProjectUrl>
+    <Copyright>Copyright (c) 2024 whistyun, 2024 Carina Studio</Copyright>
+    <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <LangVersion>9</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Nullable>enable</Nullable>

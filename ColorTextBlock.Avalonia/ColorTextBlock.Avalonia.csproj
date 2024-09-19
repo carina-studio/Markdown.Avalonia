@@ -7,9 +7,9 @@
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
     <PackageId>CarinaStudio.ColorTextBlock.Avalonia</PackageId>
     <Version>$(PackageVersion)</Version>
-    <Authors>whistyun</Authors>
-    <Copyright>Copyright (c) 2020 whistyun</Copyright>
-    <PackageProjectUrl>https://github.com/whistyun/Markdown.Avalonia/tree/master/ColorTextBlock.Avalonia/</PackageProjectUrl>
+    <Authors>whistyun; Carina Studio</Authors>
+    <Copyright>Copyright (c) 2020 whistyun, 2024 Carina Studio</Copyright>
+    <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <LangVersion>9</LangVersion>
     <Nullable>enable</Nullable>

@@ -7,9 +7,9 @@
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
     <PackageId>CarinaStudio.Markdown.Avalonia.SyntaxHigh</PackageId>
     <Version>$(PackageVersion)</Version>
-    <Authors>whistyun</Authors>
-    <Copyright>Copyright (c) 2021 whistyun</Copyright>
-    <PackageProjectUrl>https://github.com/whistyun/Markdown.Avalonia</PackageProjectUrl>
+    <Authors>whistyun; Carina Studio</Authors>
+    <Copyright>Copyright (c) 2021 whistyun, 2024 Carina Studio</Copyright>
+    <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <PackageReadmeFile>Markdown.Avalonia.SyntaxHigh.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Company />
