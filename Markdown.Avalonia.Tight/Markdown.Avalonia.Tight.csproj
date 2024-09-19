@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
-    <PackageId>Markdown.Avalonia.Tight</PackageId>
+    <PackageId>CarinaStudio.Markdown.Avalonia.Tight</PackageId>
     <AssemblyName>Markdown.Avalonia</AssemblyName>
     <RootNamespace>Markdown.Avalonia</RootNamespace>
     <Version>$(PackageVersion)</Version>

@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
-    <PackageId>Markdown.Avalonia.Html</PackageId>
+    <PackageId>CarinaStudio.Markdown.Avalonia.Html</PackageId>
     <Version>$(PackageVersion)</Version>
     <Authors>whistyun</Authors>
     <Description>html tag processor for Markdown.Avalonia</Description>     

@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
-    <PackageId>ColorTextBlock.Avalonia</PackageId>
+    <PackageId>CarinaStudio.ColorTextBlock.Avalonia</PackageId>
     <Version>$(PackageVersion)</Version>
     <Authors>whistyun</Authors>
     <Copyright>Copyright (c) 2020 whistyun</Copyright>

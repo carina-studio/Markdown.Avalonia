@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
-    <PackageId>Markdown.Avalonia.Svg</PackageId>
+    <PackageId>CarinaStudio.Markdown.Avalonia.Svg</PackageId>
     <Version>$(PackageVersion)</Version>
     <Authors>grifsun; whistyun</Authors>
     <Copyright>Copyright (c) 2023 grifsun, whistyun</Copyright>

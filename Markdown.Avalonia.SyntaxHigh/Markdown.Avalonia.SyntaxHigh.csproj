@@ -5,7 +5,7 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
-    <PackageId>Markdown.Avalonia.SyntaxHigh</PackageId>
+    <PackageId>CarinaStudio.Markdown.Avalonia.SyntaxHigh</PackageId>
     <Version>$(PackageVersion)</Version>
     <Authors>whistyun</Authors>
     <Copyright>Copyright (c) 2021 whistyun</Copyright>

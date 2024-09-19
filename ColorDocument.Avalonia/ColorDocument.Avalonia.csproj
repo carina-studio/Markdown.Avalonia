@@ -6,7 +6,7 @@
     <TargetFrameworks>$(PackageTargetFrameworks)</TargetFrameworks>
     <Version>$(PackageVersion)</Version>
     <Authors>Bevan Arps(original); whistyun</Authors>
-    <PackageId>ColorDocument.Avalonia</PackageId>
+    <PackageId>CarinaStudio.ColorDocument.Avalonia</PackageId>
 
     <Version>$(PackageVersion)</Version>
     <Authors>whistyun</Authors>
