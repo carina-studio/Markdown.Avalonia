@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using MdStyle = Markdown.Avalonia.MarkdownStyle;
 
@@ -81,6 +82,9 @@ namespace Markdown.Avalonia
                 nameof(SelectionEnabled),
                 owner => owner.SelectionEnabled,
                 (owner, v) => owner.SelectionEnabled = v);
+
+        public static readonly DirectProperty<MarkdownScrollViewer, string?> SelectedTextProperty =
+            AvaloniaProperty.RegisterDirect<MarkdownScrollViewer, string?>(nameof(SelectedText), v => v._selectedText);
 
         private static readonly HttpClient s_httpclient = new();
         private readonly ScrollViewer _viewer;
@@ -144,16 +148,19 @@ namespace Markdown.Avalonia
             _viewer.PointerPressed += _viewer_PointerPressed;
             _viewer.PointerMoved += _viewer_PointerMoved;
             _viewer.PointerReleased += _viewer_PointerReleased;
-            _viewer.DoubleTapped += _viewer_DoubleTapped;
 
             _wrapper = new Wrapper(this);
             _viewer.Content = _wrapper;
         }
 
+        public DocumentElement? Document => _document;
+
         #region text selection
 
         private bool _isLeftButtonPressed;
         private Point _startPoint;
+        private string? _selectedText;
+        private readonly StringBuilder _selectedTextBuilder = new();
 
         private void _viewer_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
@@ -166,6 +173,7 @@ namespace Markdown.Avalonia
                 _isLeftButtonPressed = true;
                 _startPoint = point.Position;
                 _document.Select(_startPoint, point.Position);
+                ReportSelectedText();
 
                 this.Focus();
             }
@@ -179,7 +187,10 @@ namespace Markdown.Avalonia
             if (_isLeftButtonPressed && point.Properties.IsLeftButtonPressed)
             {
                 if (_document is not null)
+                {
                     _document.Select(_startPoint, point.Position);
+                    //ReportSelectedText();
+                }
 
                 var pointInViewer = e.GetPosition(_viewer);
                 if (pointInViewer.Y < 0)
@@ -199,16 +210,11 @@ namespace Markdown.Avalonia
                 _isLeftButtonPressed = false;
 
                 if (_document is not null)
+                {
                     _document.Select(_startPoint, point.Position);
+                    ReportSelectedText();
+                }
             }
-        }
-
-        private void _viewer_DoubleTapped(object? sender, TappedEventArgs e)
-        {
-            if (_document is null) return;
-
-            var position = e.GetPosition(_document.Control);
-            //
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -226,6 +232,28 @@ namespace Markdown.Avalonia
                 }
             }
         }
+        
+        void ReportSelectedText()
+        {
+            string? selectedText;
+            if (_document is not null)
+            {
+                _document.ConstructSelectedText(_selectedTextBuilder);
+                if (_selectedTextBuilder.Length > 0 && _selectedTextBuilder[^1] == '\n')
+                {
+                    _selectedTextBuilder.Remove(_selectedTextBuilder.Length - 1, 1);
+                }
+                selectedText = _selectedTextBuilder.Length > 0 ? _selectedTextBuilder.ToString() : null;
+                _selectedTextBuilder.Clear();
+            }
+            else
+            {
+                selectedText = null;
+            }
+            this.SetAndRaise(SelectedTextProperty, ref _selectedText, selectedText);
+        }
+
+        public string? SelectedText => _selectedText;
 
         #endregion
 
