@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Layout;
@@ -143,6 +144,7 @@ namespace Markdown.Avalonia
             _viewer.PointerPressed += _viewer_PointerPressed;
             _viewer.PointerMoved += _viewer_PointerMoved;
             _viewer.PointerReleased += _viewer_PointerReleased;
+            _viewer.DoubleTapped += _viewer_DoubleTapped;
 
             _wrapper = new Wrapper(this);
             _viewer.Content = _wrapper;
@@ -178,6 +180,12 @@ namespace Markdown.Avalonia
             {
                 if (_document is not null)
                     _document.Select(_startPoint, point.Position);
+
+                var pointInViewer = e.GetPosition(_viewer);
+                if (pointInViewer.Y < 0)
+                    _viewer.LineUp();
+                else if (pointInViewer.Y > _viewer.Viewport.Height)
+                    _viewer.LineDown();
             }
         }
 
@@ -193,6 +201,14 @@ namespace Markdown.Avalonia
                 if (_document is not null)
                     _document.Select(_startPoint, point.Position);
             }
+        }
+
+        private void _viewer_DoubleTapped(object? sender, TappedEventArgs e)
+        {
+            if (_document is null) return;
+
+            var position = e.GetPosition(_document.Control);
+            //
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -387,11 +403,26 @@ namespace Markdown.Avalonia
         }
 
         private bool _selectionEnabled;
+        private IDisposable? _ibeamCursorValueToken;
         public bool SelectionEnabled
         {
             set
             {
+                if (_selectionEnabled == value)
+                    return;
                 Focusable = _selectionEnabled = value;
+                if (!value)
+                {
+                    if (_ibeamCursorValueToken is not null)
+                    {
+                        _ibeamCursorValueToken.Dispose();
+                        _ibeamCursorValueToken = null;
+                    }
+                } 
+                else if (_ibeamCursorValueToken is null)
+                {
+                    _ibeamCursorValueToken = SetValue(CursorProperty, new Cursor(StandardCursorType.Ibeam), BindingPriority.Template);
+                }
             }
             get => _selectionEnabled;
         }

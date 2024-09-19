@@ -129,6 +129,7 @@
       MarkdownStyleName="{Binding SelectedStyle.Name}"
       SaveScrollValueWhenContentUpdated="True"
       Markdown="{Binding Text}"
+      SelectionEnabled="True"
       HeaderScrolled="HeaderScrolled"
       
       local:DynamicStyleBehavior.XamlText="{Binding AppendStyleXamlText}"
