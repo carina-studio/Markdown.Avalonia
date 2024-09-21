@@ -1,11 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
-using Avalonia.Data;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
 using Avalonia.Layout;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Platform;
@@ -87,11 +87,35 @@ namespace Markdown.Avalonia
             AvaloniaProperty.RegisterDirect<MarkdownScrollViewer, string?>(nameof(SelectedText), v => v._selectedText);
 
         private static readonly HttpClient s_httpclient = new();
+        private static Cursor? s_ibeamCursor;
         private readonly ScrollViewer _viewer;
         private SetupInfo _setup;
         private DocumentElement? _document;
         private IBrush? _selectionBrush;
         private Wrapper _wrapper;
+        
+        private class CTextBlockIsPointerOverObserver: IObserver<AvaloniaPropertyChangedEventArgs<bool>>
+        {
+            public void OnCompleted() { }
+            public void OnError(Exception error) { }
+            public void OnNext(AvaloniaPropertyChangedEventArgs<bool> value)
+            {
+                if (value.Sender is not CTextBlock textBlock || textBlock.FindLogicalAncestorOfType<MarkdownScrollViewer>() is not { } markdownScrollViewer)
+                    return;
+                if (markdownScrollViewer.SelectionEnabled && value.NewValue == true)
+                {
+                    s_ibeamCursor ??= new Cursor(StandardCursorType.Ibeam);
+                    textBlock.Cursor = s_ibeamCursor;
+                }
+                else
+                    textBlock.Cursor = markdownScrollViewer.Cursor;
+            }
+        }
+
+        static MarkdownScrollViewer()
+        {
+            IsPointerOverProperty.Changed.Subscribe(new CTextBlockIsPointerOverObserver());
+        }
 
         public MarkdownScrollViewer()
         {
@@ -168,14 +192,22 @@ namespace Markdown.Avalonia
             if (!SelectionEnabled) return;
 
             var point = e.GetCurrentPoint(_document.Control);
-            if (point.Properties.IsLeftButtonPressed && _document is not null)
+            if (point.Properties.IsLeftButtonPressed)
             {
-                _isLeftButtonPressed = true;
-                _startPoint = point.Position;
-                _document.Select(_startPoint, point.Position);
-                ReportSelectedText();
+                if (_document is not null)
+                {
+                    _isLeftButtonPressed = true;
+                    _startPoint = point.Position;
+                    _document.Select(_startPoint, point.Position);
+                    ReportSelectedText();
 
-                this.Focus();
+                    this.Focus();
+                }
+            }
+            else if (this.InputHitTest(point.Position) is ScrollContentPresenter)
+            {
+                _document?.UnSelect();
+                ReportSelectedText();
             }
         }
 
@@ -222,14 +254,11 @@ namespace Markdown.Avalonia
             if (!SelectionEnabled) return;
 
             // Ctrl+C
-            if (e.Key == Key.C && e.KeyModifiers == KeyModifiers.Control)
+            if (e.Key == Key.C)
             {
-                if (_document is not null
-                    && TopLevel.GetTopLevel(this) is TopLevel top
-                    && top.Clipboard is IClipboard clipboard)
-                {
-                    clipboard.SetTextAsync(_document.GetSelectedText());
-                }
+                var modifier = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+                if ((e.KeyModifiers & modifier) != 0)
+                    CopySelectedText();
             }
         }
         
@@ -251,6 +280,15 @@ namespace Markdown.Avalonia
                 selectedText = null;
             }
             this.SetAndRaise(SelectedTextProperty, ref _selectedText, selectedText);
+        }
+        
+        /// <summary>
+        /// Copy selected text.
+        /// </summary>
+        public void CopySelectedText()
+        {
+            if (this.SelectionEnabled && !string.IsNullOrEmpty(_selectedText))
+                _ = TopLevel.GetTopLevel(this)?.Clipboard?.SetTextAsync(_selectedText);
         }
 
         public string? SelectedText => _selectedText;
@@ -431,26 +469,11 @@ namespace Markdown.Avalonia
         }
 
         private bool _selectionEnabled;
-        private IDisposable? _ibeamCursorValueToken;
         public bool SelectionEnabled
         {
             set
             {
-                if (_selectionEnabled == value)
-                    return;
                 Focusable = _selectionEnabled = value;
-                if (!value)
-                {
-                    if (_ibeamCursorValueToken is not null)
-                    {
-                        _ibeamCursorValueToken.Dispose();
-                        _ibeamCursorValueToken = null;
-                    }
-                } 
-                else if (_ibeamCursorValueToken is null)
-                {
-                    _ibeamCursorValueToken = SetValue(CursorProperty, new Cursor(StandardCursorType.Ibeam), BindingPriority.Template);
-                }
             }
             get => _selectionEnabled;
         }
