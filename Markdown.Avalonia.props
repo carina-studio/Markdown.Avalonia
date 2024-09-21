@@ -1,6 +1,6 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+  <PropertyGroup>
     <PackageTargetFrameworks>net8.0;net9.0</PackageTargetFrameworks>
     <DemoAppTargetFrameworks>net9.0</DemoAppTargetFrameworks>
     <TestTargetFrameworks>net9.0</TestTargetFrameworks>
