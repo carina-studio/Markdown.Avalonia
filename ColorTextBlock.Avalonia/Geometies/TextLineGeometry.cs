@@ -56,7 +56,7 @@ namespace ColorTextBlock.Avalonia.Geometries
             if (IsUnderline)
             {
                 var ypos = Math.Round(Top + Height);
-                ctx.DrawLine(new Pen(foreground, 2),
+                ctx.DrawLine(new Pen(foreground, 1),
                     new Point(Left, ypos),
                     new Point(Left + Width, ypos));
             }
@@ -64,7 +64,7 @@ namespace ColorTextBlock.Avalonia.Geometries
             if (IsStrikethrough)
             {
                 var ypos = Math.Round(Top + Height / 2);
-                ctx.DrawLine(new Pen(foreground, 2),
+                ctx.DrawLine(new Pen(foreground, 1),
                     new Point(Left, ypos),
                     new Point(Left + Width, ypos));
             }
