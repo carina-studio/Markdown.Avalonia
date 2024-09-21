@@ -177,6 +177,8 @@ namespace Markdown.Avalonia
             _viewer.Content = _wrapper;
         }
 
+        public IList<Control> Children => _wrapper.Children;
+
         public DocumentElement? Document => _document;
 
         #region text selection
@@ -719,6 +721,8 @@ namespace Markdown.Avalonia
             private readonly Canvas _canvas;
             private readonly Dictionary<Control, Rectangle> _rects;
             private DocumentElement? _document;
+
+            public IList<Control> Children => this._canvas.Children;
 
             public DocumentElement? Document
             {
