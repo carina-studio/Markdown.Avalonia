@@ -177,7 +177,47 @@ namespace Markdown.Avalonia
             _viewer.Content = _wrapper;
         }
 
-        public IList<Control> Controls => (this._document?.Control as Panel)?.Children ?? (IList<Control>)Array.Empty<Control>();
+        public Control? FindControl(Predicate<Control> predicate, int maxDepth = 1)
+        {
+            if (maxDepth < 1)
+                return null;
+            if (maxDepth == 1)
+                return FindFirstLevelControl(predicate);
+            var panels = new Queue<ValueTuple<Panel, int>>();
+            if (_document?.Control is Panel rootPanel)
+            {
+                panels.Enqueue((rootPanel, 1));
+                do
+                {
+                    var (panel, depth) = panels.Dequeue();
+                    var controls = panel.Children;
+                    for (int i = controls.Count - 1; i >= 0; --i)
+                    {
+                        var control = controls[i];
+                        if (predicate(control))
+                            return control;
+                        if (depth < maxDepth && control is Panel subPanel)
+                            panels.Enqueue((subPanel, depth + 1));
+                    }
+                } while (panels.Count > 0);
+            }
+            return null;
+        }
+
+        private Control? FindFirstLevelControl(Predicate<Control> predicate)
+        {
+            var controls = (_document?.Control as Panel)?.Children;
+            if (controls is not null)
+            {
+                for (int i = controls.Count - 1; i >= 0; --i)
+                {
+                    var control = controls[i];
+                    if (predicate(control))
+                        return control;
+                }
+            }
+            return null;
+        }
 
         public DocumentElement? Document => _document;
 
