@@ -150,9 +150,9 @@ namespace ColorTextBlock.Avalonia
                         TextAlignment.Left, true, false,
                         runProps,
                         TextWrapping.Wrap,
-                        double.NaN,
+                        GetValue(LineHeightProperty),
                         0,
-                        0);
+                        GetValue(LetterSpacingProperty));
 
         internal TextRunProperties CreateTextRunProperties(IBrush? foreground)
             => new GenericTextRunProperties(Typeface, FontSize, foregroundBrush: foreground);

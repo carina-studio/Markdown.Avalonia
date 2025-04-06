@@ -63,6 +63,20 @@ namespace ColorTextBlock.Avalonia
         /// <seealso cref="FontStyle"/>
         public static readonly StyledProperty<FontStyle> FontStyleProperty =
             TextBlock.FontStyleProperty.AddOwner<CInline>();
+        
+        /// <summary>
+        /// Define <see cref="LetterSpacing"/> property.
+        /// </summary>
+        /// <seealso cref="LetterSpacing"/>
+        public static readonly StyledProperty<double> LetterSpacingProperty =
+            TextBlock.LetterSpacingProperty.AddOwner<CInline>();
+        
+        /// <summary>
+        /// Define <see cref="LineHeight"/> property.
+        /// </summary>
+        /// <seealso cref="LineHeight"/>
+        public static readonly StyledProperty<double> LineHeightProperty =
+            TextBlock.LineHeightProperty.AddOwner<CInline>();
 
         /// <summary>
         /// Use to indicate the vertical position of text within line.
@@ -153,6 +167,24 @@ namespace ColorTextBlock.Avalonia
         }
 
         /// <summary>
+        /// Gets or sets the letter spacing.
+        /// </summary>
+        public double LetterSpacing
+        {
+            get => GetValue(LetterSpacingProperty);
+            set => SetValue(LetterSpacingProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the height of each line of content.
+        /// </summary>
+        public double LineHeight
+        {
+            get => GetValue(LineHeightProperty);
+            set => SetValue(LineHeightProperty, value);
+        }
+
+        /// <summary>
         /// Typeface of the text element
         /// </summary>
         public Typeface Typeface
@@ -211,7 +243,9 @@ namespace ColorTextBlock.Avalonia
                 case nameof(FontStretch):
                     Typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
                     goto case nameof(TextVerticalAlignment);
-
+                    
+                case nameof(LetterSpacing):
+                case nameof(LineHeight):
                 case nameof(TextVerticalAlignment):
                     RequestMeasure();
                     break;
