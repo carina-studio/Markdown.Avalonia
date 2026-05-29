@@ -27,29 +27,28 @@ namespace ColorTextBlock.Avalonia.Geometries
         }
 
         public override double TextBandTop
-        {
-            get
-            {
-                var metrics = Owner.Typeface.GlyphTypeface.Metrics;
-                if (metrics.DesignEmHeight <= 0)
-                    return base.TextBandTop;
-
-                var scale = Owner.FontSize / metrics.DesignEmHeight;
-                return Line.Baseline - Math.Abs(metrics.Ascent * scale);
-            }
-        }
+            => TryGetTextBand(out var top, out _) ? top : base.TextBandTop;
 
         public override double TextBandBottom
-        {
-            get
-            {
-                var metrics = Owner.Typeface.GlyphTypeface.Metrics;
-                if (metrics.DesignEmHeight <= 0)
-                    return base.TextBandBottom;
+            => TryGetTextBand(out _, out var bottom) ? bottom : base.TextBandBottom;
 
-                var scale = Owner.FontSize / metrics.DesignEmHeight;
-                return Line.Baseline + Math.Abs(metrics.Descent * scale);
-            }
+        // The em-box of the run's *nominal* font (e.g. the monospace family for inline code), placed
+        // at the line's leading-adjusted baseline. Using the nominal font keeps the band height
+        // consistent regardless of content (Latin vs CJK vs emoji fallback glyphs), so code pills are
+        // a uniform height; the (shorter) fallback glyphs sit within this box.
+        private bool TryGetTextBand(out double top, out double bottom)
+        {
+            top = 0;
+            bottom = 0;
+
+            var metrics = Owner.Typeface.GlyphTypeface.Metrics;
+            if (metrics.DesignEmHeight <= 0)
+                return false;
+
+            var scale = Owner.FontSize / metrics.DesignEmHeight;
+            top = Line.Baseline - Math.Abs(metrics.Ascent * scale);
+            bottom = Line.Baseline + Math.Abs(metrics.Descent * scale);
+            return bottom > top;
         }
 
         public override void Render(DrawingContext ctx)
@@ -74,7 +73,8 @@ namespace ColorTextBlock.Avalonia.Geometries
 
             if (background != null)
             {
-                ctx.FillRectangle(background, new Rect(Left, Top, Width, Height));
+                // fill the background over the glyph band so it matches the centred code pill
+                ctx.FillRectangle(background, new Rect(Left, Top + TextBandTop, Width, TextBandBottom - TextBandTop));
             }
 
             Line.Draw(ctx, new Point(Left, Top));

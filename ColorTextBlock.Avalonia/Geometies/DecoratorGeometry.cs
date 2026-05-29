@@ -184,12 +184,34 @@ namespace ColorTextBlock.Avalonia.Geometries
 
         public override void Render(DrawingContext ctx)
         {
-            using (ctx.PushTransform(Matrix.CreateTranslation(Left + Decorate.Margin.Left, Top + Decorate.Margin.Top)))
+            if (Owner is CCode)
             {
-                Decorate.Background = Owner.Background;
-                Decorate.Arrange(GetDecorateBounds());
-                Decorate.Render(ctx);
+                // Draw the code pill directly so it can be sized/positioned to the glyph band.
+                // (Going through Decorate.Arrange/Render ignores the requested position and size.)
+                var bounds = GetDecorateBounds();
+                var rect = new Rect(
+                    Left + Decorate.Margin.Left,
+                    Top + Decorate.Margin.Top + bounds.Y,
+                    Math.Max(0, bounds.Width - Decorate.Margin.Left - Decorate.Margin.Right),
+                    bounds.Height);
 
+                if (Owner.Background is not null && rect.Width > 0 && rect.Height > 0)
+                {
+                    var pen = (Decorate.BorderThickness != default && Decorate.BorderBrush is not null)
+                        ? new Pen(Decorate.BorderBrush, Decorate.BorderThickness.Top)
+                        : null;
+                    ctx.DrawRectangle(Owner.Background, pen, rect, Decorate.CornerRadius.TopLeft, Decorate.CornerRadius.TopLeft);
+                }
+            }
+            else
+            {
+                using (ctx.PushTransform(Matrix.CreateTranslation(Left + Decorate.Margin.Left, Top + Decorate.Margin.Top)))
+                {
+                    Decorate.Background = Owner.Background;
+                    Decorate.Arrange(new Rect(0, 0, Width, Height));
+                    Decorate.Render(ctx);
+
+                }
             }
 
             foreach (var target in Targets)
@@ -218,9 +240,9 @@ namespace ColorTextBlock.Avalonia.Geometries
             if (double.IsInfinity(bandTop) || double.IsInfinity(bandBottom) || bandBottom <= bandTop)
                 return new Rect(0, 0, Width, Height);
 
-            // clamp within the box and keep the full width
-            var top = Math.Max(0, bandTop);
-            var bottom = Math.Min(Height, bandBottom);
+            // pad the ink band symmetrically with the decorator's vertical padding/border, keep full width
+            var top = bandTop - Decorate.Padding.Top - Decorate.BorderThickness.Top;
+            var bottom = bandBottom + Decorate.Padding.Bottom + Decorate.BorderThickness.Bottom;
             return new Rect(0, top, Width, bottom - top);
         }
 

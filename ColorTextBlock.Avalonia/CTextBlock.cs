@@ -1071,17 +1071,45 @@ namespace ColorTextBlock.Avalonia
         private double _height;
         private double _dheightTop;
         private double _dheightBtm;
+        private double _codeBaseHeight;
+        private double _codeHeight;
 
         public double Top { get; internal set; }
         public double Width { private set; get; }
-        public double Height => Math.Max(_height, _dheightTop + _dheightBtm);
-        public double BaseHeight => Math.Max(RequestBaseHeight, BaseHeight1 != 0 ? BaseHeight1 : BaseHeight2);
+        public double Height
+        {
+            get
+            {
+                var textHeight = Math.Max(_height, _dheightTop + _dheightBtm);
+                return textHeight != 0 ? textHeight : _codeHeight;
+            }
+        }
+        public double BaseHeight
+        {
+            get
+            {
+                var textBase = BaseHeight1 != 0 ? BaseHeight1 : BaseHeight2;
+                return Math.Max(RequestBaseHeight, textBase != 0 ? textBase : _codeBaseHeight);
+            }
+        }
 
         public bool Add(CGeometry metry)
         {
             Metries.Add(metry);
 
             Width += metry.Width;
+
+            // Inline code pills overlay the line and must not drive its baseline/height; otherwise
+            // their taller font metrics (CJK/emoji/mono) or vertical padding push the line's text
+            // down and tighten line spacing. They align to the surrounding text baseline (handled in
+            // DecoratorGeometry), and contribute metrics only as a fallback for a line that contains
+            // nothing but inline code.
+            if (metry.Owner is CCode)
+            {
+                Max(ref _codeBaseHeight, metry.BaseHeight);
+                Max(ref _codeHeight, metry.Height);
+                return metry.LineBreak;
+            }
 
             switch (metry.TextVerticalAlignment)
             {
