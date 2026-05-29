@@ -9,7 +9,7 @@
     <PackageId>CarinaStudio.ColorDocument.Avalonia</PackageId>
 
     <Version>$(PackageVersion)</Version>
-    <Copyright>Copyright (c) 2024 whistyun, 2024 Carina Studio</Copyright>
+    <Copyright>Copyright (c) 2024 whistyun, 2026 Carina Studio</Copyright>
     <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <LangVersion>9</LangVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
