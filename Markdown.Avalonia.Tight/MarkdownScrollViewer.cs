@@ -10,6 +10,7 @@ using Avalonia.Media;
 using Avalonia.Metadata;
 using Avalonia.Platform;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using ColorDocument.Avalonia;
 using ColorDocument.Avalonia.DocumentElements;
 using ColorTextBlock.Avalonia;
@@ -172,6 +173,7 @@ namespace Markdown.Avalonia
             _viewer.PointerPressed += _viewer_PointerPressed;
             _viewer.PointerMoved += _viewer_PointerMoved;
             _viewer.PointerReleased += _viewer_PointerReleased;
+            _viewer.PointerCaptureLost += _viewer_PointerCaptureLost;
 
             _wrapper = new Wrapper(this);
             _viewer.Content = _wrapper;
@@ -227,6 +229,8 @@ namespace Markdown.Avalonia
         private Point _startPoint;
         private string? _selectedText;
         private readonly StringBuilder _selectedTextBuilder = new();
+        private DispatcherTimer? _autoScrollTimer;
+        private Point _lastPointerPositionInViewer;
 
         private void _viewer_PointerPressed(object? sender, PointerPressedEventArgs e)
         {
@@ -244,6 +248,7 @@ namespace Markdown.Avalonia
                     ReportSelectedText();
 
                     this.Focus();
+                    e.Pointer.Capture(_viewer);
                 }
             }
             else if (this.InputHitTest(point.Position) is ScrollContentPresenter)
@@ -266,11 +271,12 @@ namespace Markdown.Avalonia
                     //ReportSelectedText();
                 }
 
-                var pointInViewer = e.GetPosition(_viewer);
-                if (pointInViewer.Y < 0)
-                    _viewer.LineUp();
-                else if (pointInViewer.Y > _viewer.Viewport.Height)
-                    _viewer.LineDown();
+                // remember the latest cursor position and (re)evaluate continuous auto-scrolling
+                _lastPointerPositionInViewer = e.GetPosition(_viewer);
+                if (IsOutsideViewport(_lastPointerPositionInViewer))
+                    StartAutoScroll();
+                else
+                    StopAutoScroll();
             }
         }
 
@@ -282,6 +288,8 @@ namespace Markdown.Avalonia
             if (_isLeftButtonPressed && !point.Properties.IsLeftButtonPressed)
             {
                 _isLeftButtonPressed = false;
+                StopAutoScroll();
+                e.Pointer.Capture(null);
 
                 if (_document is not null)
                 {
@@ -289,6 +297,71 @@ namespace Markdown.Avalonia
                     ReportSelectedText();
                 }
             }
+        }
+
+        private void _viewer_PointerCaptureLost(object? sender, PointerCaptureLostEventArgs e)
+        {
+            _isLeftButtonPressed = false;
+            StopAutoScroll();
+        }
+
+        private bool IsOutsideViewport(Point pointInViewer)
+            => pointInViewer.X < 0 || pointInViewer.X > _viewer.Viewport.Width
+                || pointInViewer.Y < 0 || pointInViewer.Y > _viewer.Viewport.Height;
+
+        private void StartAutoScroll()
+        {
+            if (_autoScrollTimer is null)
+            {
+                _autoScrollTimer = new DispatcherTimer(DispatcherPriority.Input)
+                {
+                    Interval = TimeSpan.FromMilliseconds(16)
+                };
+                _autoScrollTimer.Tick += OnAutoScrollTick;
+            }
+
+            if (!_autoScrollTimer.IsEnabled)
+                _autoScrollTimer.Start();
+        }
+
+        private void StopAutoScroll()
+            => _autoScrollTimer?.Stop();
+
+        private void OnAutoScrollTick(object? sender, EventArgs e)
+        {
+            // stop once the drag ends or the cursor is back inside the viewport
+            if (!_isLeftButtonPressed || _document is null || !IsOutsideViewport(_lastPointerPositionInViewer))
+            {
+                StopAutoScroll();
+                return;
+            }
+
+            // scroll by an amount proportional to how far the cursor is outside the viewport (both axes)
+            var pointInViewer = _lastPointerPositionInViewer;
+            var deltaX = AutoScrollDelta(pointInViewer.X, _viewer.Viewport.Width);
+            var deltaY = AutoScrollDelta(pointInViewer.Y, _viewer.Viewport.Height);
+            var offsetX = Math.Clamp(_viewer.Offset.X + deltaX, 0, Math.Max(0, _viewer.Extent.Width - _viewer.Viewport.Width));
+            var offsetY = Math.Clamp(_viewer.Offset.Y + deltaY, 0, Math.Max(0, _viewer.Extent.Height - _viewer.Viewport.Height));
+            _viewer.Offset = new Vector(offsetX, offsetY);
+
+            // extend the selection to follow the cursor as content scrolls beneath it
+            var docPoint = _viewer.TranslatePoint(pointInViewer, _document.Control);
+            if (docPoint.HasValue)
+                _document.Select(_startPoint, docPoint.Value);
+        }
+
+        // Distance (in px/tick) to scroll along one axis: 0 inside the viewport, otherwise a
+        // capped, distance-proportional step whose sign points toward the cursor.
+        private static double AutoScrollDelta(double position, double extent)
+        {
+            var outside = position < 0 ? position
+                : position > extent ? position - extent
+                : 0d;
+            if (outside == 0d)
+                return 0d;
+
+            var magnitude = Math.Min(Math.Abs(outside) * 0.5 + 8, 40);
+            return Math.Sign(outside) * magnitude;
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -510,7 +583,7 @@ namespace Markdown.Avalonia
             get { return _viewer.Offset; }
         }
 
-        private bool _selectionEnabled;
+        private bool _selectionEnabled = true;
         public bool SelectionEnabled
         {
             set
