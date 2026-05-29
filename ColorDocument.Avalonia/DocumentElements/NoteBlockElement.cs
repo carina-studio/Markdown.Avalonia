@@ -44,7 +44,16 @@ namespace ColorDocument.Avalonia.DocumentElements
         }
 
         public override void Select(Point from, Point to)
-            => _child.Select(from, to);
+        {
+            // from/to arrive in the outer Border's local coords (SelectionUtil translates by
+            // Control.Bounds, and our Control is the Border). The inner CTextBlock sits inside
+            // the Border offset by the Border's chrome + the CTextBlock's own margin; without
+            // re-translating here, clicks miss by that offset and selection misbehaves.
+            var inner = _child.Control.Bounds;
+            _child.Select(
+                new Point(from.X - inner.X, from.Y - inner.Y),
+                new Point(to.X - inner.X, to.Y - inner.Y));
+        }
 
         public override void UnSelect()
         {

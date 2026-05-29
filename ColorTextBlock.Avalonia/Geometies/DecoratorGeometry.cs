@@ -21,55 +21,93 @@ namespace ColorTextBlock.Avalonia.Geometries
         private Action<Control>? _OnMouseReleased;
         private Action<Control>? _OnClick;
 
+        // Return null when there is no own handler AND no target has one. The previous
+        // implementation always returned a non-null lambda, which made CTextBlock.OnPointer*
+        // treat every DecoratorGeometry as interactive — swallowing the press with
+        // e.Handled = true and blocking outer selection (e.g. ColorDocument) from starting
+        // a drag-select when the user clicks inside a CCode pill.
         public override Action<Control>? OnMouseEnter
         {
-            get => ctrl =>
+            get
             {
-                _OnMouseEnter?.Invoke(ctrl);
-                foreach (var target in Targets)
-                    target.OnMouseEnter?.Invoke(ctrl);
-            };
+                if (_OnMouseEnter is null && !HasAnyTargetHandler(t => t.OnMouseEnter))
+                    return null;
+                return ctrl =>
+                {
+                    _OnMouseEnter?.Invoke(ctrl);
+                    foreach (var target in Targets)
+                        target.OnMouseEnter?.Invoke(ctrl);
+                };
+            }
             set => _OnMouseEnter = value;
         }
         public override Action<Control>? OnMouseLeave
         {
-            get => ctrl =>
+            get
             {
-                _OnMouseLeave?.Invoke(ctrl);
-                foreach (var target in Targets)
-                    target.OnMouseLeave?.Invoke(ctrl);
-            };
+                if (_OnMouseLeave is null && !HasAnyTargetHandler(t => t.OnMouseLeave))
+                    return null;
+                return ctrl =>
+                {
+                    _OnMouseLeave?.Invoke(ctrl);
+                    foreach (var target in Targets)
+                        target.OnMouseLeave?.Invoke(ctrl);
+                };
+            }
             set => _OnMouseLeave = value;
         }
         public override Action<Control>? OnMousePressed
         {
-            get => ctrl =>
+            get
             {
-                _OnMousePressed?.Invoke(ctrl);
-                foreach (var target in Targets)
-                    target.OnMousePressed?.Invoke(ctrl);
-            };
+                if (_OnMousePressed is null && !HasAnyTargetHandler(t => t.OnMousePressed))
+                    return null;
+                return ctrl =>
+                {
+                    _OnMousePressed?.Invoke(ctrl);
+                    foreach (var target in Targets)
+                        target.OnMousePressed?.Invoke(ctrl);
+                };
+            }
             set => _OnMousePressed = value;
         }
         public override Action<Control>? OnMouseReleased
         {
-            get => ctrl =>
+            get
             {
-                _OnMouseReleased?.Invoke(ctrl);
-                foreach (var target in Targets)
-                    target.OnMouseReleased?.Invoke(ctrl);
-            };
+                if (_OnMouseReleased is null && !HasAnyTargetHandler(t => t.OnMouseReleased))
+                    return null;
+                return ctrl =>
+                {
+                    _OnMouseReleased?.Invoke(ctrl);
+                    foreach (var target in Targets)
+                        target.OnMouseReleased?.Invoke(ctrl);
+                };
+            }
             set => _OnMouseReleased = value;
         }
         public override Action<Control>? OnClick
         {
-            get => ctrl =>
+            get
             {
-                _OnClick?.Invoke(ctrl);
-                foreach (var target in Targets)
-                    target.OnClick?.Invoke(ctrl);
-            };
+                if (_OnClick is null && !HasAnyTargetHandler(t => t.OnClick))
+                    return null;
+                return ctrl =>
+                {
+                    _OnClick?.Invoke(ctrl);
+                    foreach (var target in Targets)
+                        target.OnClick?.Invoke(ctrl);
+                };
+            }
             set => _OnClick = value;
+        }
+
+        private bool HasAnyTargetHandler(Func<CGeometry, Action<Control>?> selector)
+        {
+            foreach (var target in Targets)
+                if (selector(target) is not null)
+                    return true;
+            return false;
         }
 
         internal static DecoratorGeometry New(
@@ -254,20 +292,20 @@ namespace ColorTextBlock.Avalonia.Geometries
             }
 
             int indexAdd = 0;
-            foreach (var target in Targets.Take(Targets.Length - 1))
+            for (int i = 0; i < Targets.Length; i++)
             {
-                if (x <= target.Left + target.Width)
+                var target = Targets[i];
+                var isLast = i == Targets.Length - 1;
+                // Delegate to the target when the click is inside it, or unconditionally
+                // for the last target so x beyond all targets still resolves to its end.
+                if (isLast || x <= target.Left + target.Width)
                 {
-                    return target.CalcuatePointerFrom(x, y)
-                                 .Wrap(Owner, indexAdd);
+                    return target.CalcuatePointerFrom(x, y).Wrap(Owner, indexAdd);
                 }
-                else
-                {
-                    indexAdd += target.CaretLength;
-                }
+                indexAdd += target.CaretLength;
             }
 
-            return Targets[Targets.Length - 1].GetEnd().Wrap(Owner, indexAdd);
+            return GetEnd();
         }
 
         public override TextPointer CalcuatePointerFrom(int index)

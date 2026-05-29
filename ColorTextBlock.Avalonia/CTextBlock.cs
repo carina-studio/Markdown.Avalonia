@@ -744,6 +744,49 @@ namespace ColorTextBlock.Avalonia
                 }
             }
 
+            // CCode pills overlay the line band but don't contribute to lineInf.Height (so they
+            // don't push surrounding text down — see LineInfo.Add). That leaves the pill drawn
+            // past the CTextBlock's measured bounds on the first/last line, which breaks both
+            // visual clipping and outer hit-testing (ColorDocument's SelectionUtil routes by
+            // control.Bounds.Bottom, so a cursor over the pill overhang lands on the *next*
+            // document element). Expand the measured size to cover the pill's actual extent.
+            double extraTop = 0d;
+            double extraBottom = 0d;
+            if (_lines.Count > 0)
+            {
+                foreach (var metry in _lines[0].Metries)
+                {
+                    if (metry.Owner is CCode)
+                    {
+                        var topOverhang = _lines[0].Top - metry.Top;
+                        if (topOverhang > extraTop) extraTop = topOverhang;
+                    }
+                }
+
+                var lastLine = _lines[_lines.Count - 1];
+                foreach (var metry in lastLine.Metries)
+                {
+                    if (metry.Owner is CCode)
+                    {
+                        var bottomOverhang = (metry.Top + metry.Height) - (lastLine.Top + lastLine.Height);
+                        if (bottomOverhang > extraBottom) extraBottom = bottomOverhang;
+                    }
+                }
+            }
+
+            if (extraTop > 0)
+            {
+                foreach (var line in _lines)
+                    line.Top += extraTop;
+                foreach (var metry in _metries)
+                {
+                    metry.Top += extraTop;
+                    metry.Arranged();
+                }
+            }
+
+            height += extraTop + extraBottom;
+
             foreach (CGeometry metry in _metries) metry.RepaintRequested += RepaintRequested;
 
             if (_beginSelect is not null && _endSelect is not null)
@@ -805,7 +848,10 @@ namespace ColorTextBlock.Avalonia
 
                 void TryRender(CGeometry metry, Rect rct)
                 {
-                    if (metry is TextGeometry)
+                    // A TextGeometry that lives INSIDE a CCode pill must be drawn AFTER the
+                    // pill background, otherwise the pill (rendered later in this method)
+                    // paints right over it and the selection looks invisible.
+                    if (metry is TextGeometry && !IsGeometryInsidePill(metry))
                     {
                         context.FillRectangle(select, rct);
                     }
@@ -893,10 +939,14 @@ namespace ColorTextBlock.Avalonia
             _intermediates.Clear();
             foreach (var metry in _metries)
             {
-                bool hitB = false;
-                bool hitE = false;
-                bgn |= (hitB = ReferenceEquals(metry, _beginSelect.Geometry));
-                end |= (hitE = ReferenceEquals(metry, _endSelect.Geometry));
+                // The selection endpoint's Geometry may be NESTED inside this metry
+                // (a TextLineGeometry inside a CCode pill's DecoratorGeometry). A flat
+                // ReferenceEquals would miss it, and every metry after `bgn` would get
+                // dumped into _intermediates — visually selecting the whole paragraph.
+                bool hitB = MetryContainsGeometry(metry, _beginSelect.Geometry);
+                bool hitE = MetryContainsGeometry(metry, _endSelect.Geometry);
+                bgn |= hitB;
+                end |= hitE;
 
                 if (bgn && end) break;
 
@@ -907,6 +957,30 @@ namespace ColorTextBlock.Avalonia
                     _intermediates.Add(metry);
                 }
             }
+        }
+
+        private static bool MetryContainsGeometry(CGeometry metry, CGeometry target)
+        {
+            if (ReferenceEquals(metry, target)) return true;
+            if (metry is DecoratorGeometry deco)
+            {
+                foreach (var t in deco.Targets)
+                    if (MetryContainsGeometry(t, target)) return true;
+            }
+            return false;
+        }
+
+        private bool IsGeometryInsidePill(CGeometry target)
+        {
+            foreach (var metry in _metries)
+            {
+                if (metry is DecoratorGeometry deco && deco.Owner is CCode)
+                {
+                    foreach (var t in deco.Targets)
+                        if (MetryContainsGeometry(t, target)) return true;
+                }
+            }
+            return false;
         }
 
 
@@ -925,22 +999,67 @@ namespace ColorTextBlock.Avalonia
                 return GetBegin();
             }
 
+            // Inline code pills can extend vertically beyond the surrounding line's text height
+            // (they intentionally don't contribute to LineInfo.Height — see LineInfo.Add). Without
+            // this direct hit-test, a cursor over the visible pill but past line.Top + line.Height
+            // would fall through to the next line and select it.
+            {
+                int idx = 0;
+                foreach (var metry in _metries)
+                {
+                    if (metry.Owner is CCode
+                        && x >= metry.Left && x <= metry.Left + metry.Width
+                        && y >= metry.Top && y <= metry.Top + metry.Height)
+                    {
+                        return metry.CalcuatePointerFrom(x, y).Wrap(this, idx);
+                    }
+                    idx += metry.CaretLength;
+                }
+            }
+
             int indexAdd = 0;
             foreach (var line in _lines)
             {
-                if (y <= line.Top + line.Height)
+                // Include any CCode pill overhang in this line's vertical hit range —
+                // line.Height excludes CCode (so the pill doesn't push text down), but
+                // a cursor on the pill's overhang still belongs to this line for selection.
+                var lineBottom = line.Top + line.Height;
+                foreach (var m in line.Metries)
                 {
-                    foreach (var target in line.Metries)
+                    if (m.Owner is CCode)
                     {
-                        if (x <= target.Left + target.Width)
+                        var mb = m.Top + m.Height;
+                        if (mb > lineBottom) lineBottom = mb;
+                    }
+                }
+
+                if (y <= lineBottom)
+                {
+                    // For x past every resolvable metry on this line, delegate to the LAST
+                    // resolvable one (its CalcuatePointerFrom returns its end) so we land at
+                    // the end of THIS line — not fall through to the next line, which would
+                    // accumulate past every following line and return GetEnd() of the whole
+                    // block (the "select all paragraph" symptom). LineBreakMarkGeometry is
+                    // skipped because its geometric CalcuatePointerFrom throws.
+                    int lastResolvable = -1;
+                    for (int i = line.Metries.Count - 1; i >= 0; i--)
+                    {
+                        if (line.Metries[i] is not LineBreakMarkGeometry)
                         {
-                            return target.CalcuatePointerFrom(x, y)
-                                         .Wrap(this, indexAdd);
+                            lastResolvable = i;
+                            break;
                         }
-                        else
+                    }
+
+                    for (int i = 0; i < line.Metries.Count; i++)
+                    {
+                        var target = line.Metries[i];
+                        var canResolveHere = target is not LineBreakMarkGeometry && x <= target.Left + target.Width;
+                        if (canResolveHere || i == lastResolvable)
                         {
-                            indexAdd += target.CaretLength;
+                            return target.CalcuatePointerFrom(x, y).Wrap(this, indexAdd);
                         }
+                        indexAdd += target.CaretLength;
                     }
                 }
                 else
