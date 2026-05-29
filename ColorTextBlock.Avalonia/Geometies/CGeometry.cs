@@ -16,6 +16,18 @@ namespace ColorTextBlock.Avalonia.Geometries
         public bool LineBreak { get; }
         public TextVerticalAlignment TextVerticalAlignment { get; }
 
+        /// <summary>
+        /// Top edge of the visual text band, measured from this geometry's top.
+        /// Defaults to the whole box; text geometries narrow it to the glyph metrics.
+        /// </summary>
+        public virtual double TextBandTop => 0;
+
+        /// <summary>
+        /// Bottom edge of the visual text band, measured from this geometry's top.
+        /// Defaults to the whole box; text geometries narrow it to the glyph metrics.
+        /// </summary>
+        public virtual double TextBandBottom => Height;
+
         public event Action? RepaintRequested;
 
         public virtual Action<Control>? OnMouseEnter { get; set; }

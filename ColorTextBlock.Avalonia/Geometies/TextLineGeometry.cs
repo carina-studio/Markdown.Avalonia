@@ -26,6 +26,32 @@ namespace ColorTextBlock.Avalonia.Geometries
             LayoutForeground = owner.Foreground;
         }
 
+        public override double TextBandTop
+        {
+            get
+            {
+                var metrics = Owner.Typeface.GlyphTypeface.Metrics;
+                if (metrics.DesignEmHeight <= 0)
+                    return base.TextBandTop;
+
+                var scale = Owner.FontSize / metrics.DesignEmHeight;
+                return Line.Baseline - Math.Abs(metrics.Ascent * scale);
+            }
+        }
+
+        public override double TextBandBottom
+        {
+            get
+            {
+                var metrics = Owner.Typeface.GlyphTypeface.Metrics;
+                if (metrics.DesignEmHeight <= 0)
+                    return base.TextBandBottom;
+
+                var scale = Owner.FontSize / metrics.DesignEmHeight;
+                return Line.Baseline + Math.Abs(metrics.Descent * scale);
+            }
+        }
+
         public override void Render(DrawingContext ctx)
         {
             var foreground = TemporaryForeground ?? Foreground;

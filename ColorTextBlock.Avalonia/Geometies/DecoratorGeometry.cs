@@ -187,13 +187,41 @@ namespace ColorTextBlock.Avalonia.Geometries
             using (ctx.PushTransform(Matrix.CreateTranslation(Left + Decorate.Margin.Left, Top + Decorate.Margin.Top)))
             {
                 Decorate.Background = Owner.Background;
-                Decorate.Arrange(new Rect(0, 0, Width, Height));
+                Decorate.Arrange(GetDecorateBounds());
                 Decorate.Render(ctx);
 
             }
 
             foreach (var target in Targets)
                 target.Render(ctx);
+        }
+
+        // The bounds (in decorator-local space) the background/border is drawn into.
+        // Code spans hug the glyph band so the pill is vertically centred on the text;
+        // other spans fill the whole box as before.
+        private Rect GetDecorateBounds()
+        {
+            if (Owner is not CCode || Targets.Length == 0)
+                return new Rect(0, 0, Width, Height);
+
+            // union the visual text band across the targets, converted into the decorator-local space
+            var originY = Top + Decorate.Margin.Top;
+            var bandTop = double.PositiveInfinity;
+            var bandBottom = double.NegativeInfinity;
+            foreach (var target in Targets)
+            {
+                bandTop = Math.Min(bandTop, target.Top - originY + target.TextBandTop);
+                bandBottom = Math.Max(bandBottom, target.Top - originY + target.TextBandBottom);
+            }
+
+            // fall back to the whole box if the band could not be resolved
+            if (double.IsInfinity(bandTop) || double.IsInfinity(bandBottom) || bandBottom <= bandTop)
+                return new Rect(0, 0, Width, Height);
+
+            // clamp within the box and keep the full width
+            var top = Math.Max(0, bandTop);
+            var bottom = Math.Min(Height, bandBottom);
+            return new Rect(0, top, Width, bottom - top);
         }
 
         public override TextPointer CalcuatePointerFrom(double x, double y)
