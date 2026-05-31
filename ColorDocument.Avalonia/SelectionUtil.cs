@@ -11,6 +11,9 @@ namespace ColorDocument.Avalonia
         public static SelectionList SelectVertical<T>(Layoutable anchor, EnumerableEx<T> elements, Point from, Point to)
             where T : DocumentElement
         {
+            if (elements.Count == 0)
+                return new SelectionList(SelectDirection.Forward, SelectRange.Part, Array.Empty<DocumentElement>());
+
             var c = elements.GetRectInDoc(anchor);
 
             int fp = ComputeIdxVertical(c, from);
@@ -36,6 +39,9 @@ namespace ColorDocument.Avalonia
         public static SelectionList SelectGrid<T>(Layoutable anchor, EnumerableEx<T> elements, Point from, Point to)
             where T : DocumentElement
         {
+            if (elements.Count == 0)
+                return new SelectionList(SelectDirection.Forward, SelectRange.Part, Array.Empty<DocumentElement>());
+
             var c = elements.GetRectInDoc(anchor);
 
             int fp = ComputeIdxGrid(c, from);
