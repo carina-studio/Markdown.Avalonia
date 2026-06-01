@@ -805,11 +805,13 @@ namespace ColorTextBlock.Avalonia
             }
 
             IBrush select = SelectionBrush ?? Brushes.Cyan;
-            List<Rect>? fillAfter = null;
+            // bool flag = the rectangle covers an image and should be painted at reduced opacity
+            // so the image stays visible underneath; everything else paints fully opaque.
+            List<(Rect Rect, bool OverImage)>? fillAfter = null;
 
             if (_beginSelect is not null && _endSelect is not null)
             {
-                fillAfter = new List<Rect>();
+                fillAfter = new List<(Rect, bool)>();
 
                 TextPointer bgn, end;
                 if (_beginSelect < _endSelect)
@@ -857,7 +859,9 @@ namespace ColorTextBlock.Avalonia
                     }
                     else
                     {
-                        fillAfter.Add(rct);
+                        // Image selection paints on top of the already-rendered image —
+                        // defer it so we can apply reduced opacity below.
+                        fillAfter.Add((rct, metry is ImageGeometry));
                     }
                 }
 
@@ -870,7 +874,7 @@ namespace ColorTextBlock.Avalonia
                     if (inter is DecoratorGeometry deco && deco.Owner is CCode)
                     {
                         foreach (var target in deco.Targets)
-                            fillAfter.Add(new Rect(target.Left, target.Top, target.Width, target.Height));
+                            fillAfter.Add((new Rect(target.Left, target.Top, target.Width, target.Height), false));
                     }
                     else
                     {
@@ -893,9 +897,17 @@ namespace ColorTextBlock.Avalonia
 
             if (fillAfter is not null)
             {
-                foreach (var fillRct in fillAfter)
+                foreach (var (fillRct, overImage) in fillAfter)
                 {
-                    context.FillRectangle(select, fillRct);
+                    if (overImage)
+                    {
+                        using (context.PushOpacity(0.5))
+                            context.FillRectangle(select, fillRct);
+                    }
+                    else
+                    {
+                        context.FillRectangle(select, fillRct);
+                    }
                 }
             }
 
