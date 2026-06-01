@@ -341,9 +341,16 @@ namespace ColorTextBlock.Avalonia.Geometries
                 throw new ArgumentOutOfRangeException(nameof(index));
 
             int relindex = index;
-            foreach (var target in Targets)
+            for (int i = 0; i < Targets.Length; i++)
             {
-                if (relindex < target.CaretLength)
+                var target = Targets[i];
+                var isLast = i == Targets.Length - 1;
+                // CTextBlock.Select allows the caret to land exactly on the end of the
+                // last metry (begin == caretLength). Mirror that here for the last target
+                // so a selection that ends at the trailing edge of a CCode pill on a
+                // re-measure (e.g. window resize) resolves to its end pointer instead of
+                // throwing — TextLineGeometry.CalcuatePointerFrom accepts index == line length.
+                if (relindex < target.CaretLength || (isLast && relindex == target.CaretLength))
                 {
                     return target.CalcuatePointerFrom(relindex)
                                  .Wrap(Owner, index - relindex);
