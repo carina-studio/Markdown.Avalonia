@@ -49,8 +49,7 @@ namespace Markdown.Avalonia.Parsers.Builtin
             parseTextBegin = firstMatch.Index;
 
             string code = text.Substring(firstMatch.Index + firstMatch.Length, codeEndIndex - (firstMatch.Index + firstMatch.Length));
-            var border = Create(code);
-            return new[] { new UnBlockElement(border) };
+            return new DocumentElement[] { new PlainCodeBlockElement(code) };
         }
 
         public static Border Create(string code)

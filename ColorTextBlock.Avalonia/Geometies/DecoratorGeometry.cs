@@ -222,6 +222,21 @@ namespace ColorTextBlock.Avalonia.Geometries
 
         public override void Render(DrawingContext ctx)
         {
+            RenderDecoration(ctx);
+            RenderTargets(ctx);
+        }
+
+        /// <summary>
+        /// Paint just the decoration (the CCode pill background, or the non-code
+        /// <see cref="Decorate"/> Border) without rendering the inner text <see cref="Targets"/>.
+        /// </summary>
+        /// <remarks>
+        /// Split out from <see cref="Render"/> so <see cref="CTextBlock"/> can paint selection
+        /// rectangles between the pill background and the glyphs — selection sits below the
+        /// text, the glyphs render last and stay crisp.
+        /// </remarks>
+        public void RenderDecoration(DrawingContext ctx)
+        {
             if (Owner is CCode)
             {
                 // Draw the code pill directly so it can be sized/positioned to the glyph band.
@@ -251,9 +266,21 @@ namespace ColorTextBlock.Avalonia.Geometries
 
                 }
             }
+        }
 
+        /// <summary>
+        /// Paint the inner text geometries without re-painting the decoration.
+        /// </summary>
+        /// <remarks>
+        /// Uses <see cref="CGeometry.RenderForeground"/> instead of <see cref="CGeometry.Render"/>
+        /// so a text target doesn't re-fill the pill background (already painted by
+        /// <see cref="RenderDecoration"/>). If we used full Render here, the inner re-fill would
+        /// cover any selection rectangle that <see cref="CTextBlock"/> painted between the two.
+        /// </remarks>
+        public void RenderTargets(DrawingContext ctx)
+        {
             foreach (var target in Targets)
-                target.Render(ctx);
+                target.RenderForeground(ctx);
         }
 
         // The bounds (in decorator-local space) the background/border is drawn into.

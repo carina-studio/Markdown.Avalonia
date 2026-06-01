@@ -53,8 +53,19 @@ namespace ColorTextBlock.Avalonia.Geometries
 
         public override void Render(DrawingContext ctx)
         {
-            var foreground = TemporaryForeground ?? Foreground;
             var background = TemporaryBackground ?? Background;
+            if (background != null)
+            {
+                // fill the background over the glyph band so it matches the centred code pill
+                ctx.FillRectangle(background, new Rect(Left, Top + TextBandTop, Width, TextBandBottom - TextBandTop));
+            }
+
+            RenderForeground(ctx);
+        }
+
+        public override void RenderForeground(DrawingContext ctx)
+        {
+            var foreground = TemporaryForeground ?? Foreground;
 
             if (LayoutForeground != foreground)
             {
@@ -69,12 +80,6 @@ namespace ColorTextBlock.Avalonia.Geometries
                             Line.FirstTextSourceIndex,
                             Width,
                             parPrps)!;
-            }
-
-            if (background != null)
-            {
-                // fill the background over the glyph band so it matches the centred code pill
-                ctx.FillRectangle(background, new Rect(Left, Top + TextBandTop, Width, TextBandBottom - TextBandTop));
             }
 
             Line.Draw(ctx, new Point(Left, Top));

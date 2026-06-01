@@ -840,7 +840,7 @@ namespace ColorTextBlock.Avalonia
 
                     foreach (var inter in _intermediates)
                     {
-                        TryRender(inter, new Rect(inter.Left, inter.Top, inter.Width, inter.Height));
+                        AddIntermediate(inter);
                     }
 
                     TryRender(end.Geometry, new Rect(end.Geometry.Left, end.Geometry.Top, end.Distance, end.Geometry.Height));
@@ -860,32 +860,49 @@ namespace ColorTextBlock.Avalonia
                         fillAfter.Add(rct);
                     }
                 }
+
+                void AddIntermediate(CGeometry inter)
+                {
+                    // For a whole CCode pill that sits between the selection endpoints,
+                    // push selection rectangles for each inner Target instead of the pill's
+                    // bounding box. This keeps the pill background visible underneath and
+                    // only highlights the glyph band — same as in-pill text selection.
+                    if (inter is DecoratorGeometry deco && deco.Owner is CCode)
+                    {
+                        foreach (var target in deco.Targets)
+                            fillAfter.Add(new Rect(target.Left, target.Top, target.Width, target.Height));
+                    }
+                    else
+                    {
+                        TryRender(inter, new Rect(inter.Left, inter.Top, inter.Width, inter.Height));
+                    }
+                }
             }
 
+            // Render in two halves so the deferred selection rectangles land BETWEEN
+            // the pill background and the inner text — same layering as outside-pill
+            // text selection (which is painted before the metries). The glyphs are
+            // rendered last and remain crisp on top of the selection.
             foreach (var metry in _metries)
             {
-                metry.Render(context);
+                if (metry is DecoratorGeometry deco)
+                    deco.RenderDecoration(context);
+                else
+                    metry.Render(context);
             }
 
             if (fillAfter is not null)
             {
-                if (select is ISolidColorBrush colorBrush)
+                foreach (var fillRct in fillAfter)
                 {
-                    var selectFill = new SolidColorBrush(colorBrush.Color, .5);
-                    foreach (var fillRct in fillAfter)
-                    {
-                        context.FillRectangle(selectFill, fillRct);
-                    }
+                    context.FillRectangle(select, fillRct);
                 }
-                else
-                {
-                    foreach (var fillRct in fillAfter)
-                    {
-                        var pen = new Pen(select, 2);
-                        var rct = new Rect(fillRct.Left - 1, fillRct.Top - 1, fillRct.Width + 2, fillRct.Height + 2);
-                        context.DrawRectangle(pen, rct);
-                    }
-                }
+            }
+
+            foreach (var metry in _metries)
+            {
+                if (metry is DecoratorGeometry deco)
+                    deco.RenderTargets(context);
             }
         }
 

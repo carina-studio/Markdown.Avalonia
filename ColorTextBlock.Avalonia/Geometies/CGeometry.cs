@@ -54,6 +54,19 @@ namespace ColorTextBlock.Avalonia.Geometries
 
         public abstract void Render(DrawingContext ctx);
 
+        /// <summary>
+        /// Paint the foreground part of this geometry (glyphs, image, etc.) without re-painting
+        /// any background fill that has already been drawn by an outer geometry — e.g. a
+        /// <see cref="DecoratorGeometry"/> that has already painted the CCode pill background.
+        /// </summary>
+        /// <remarks>
+        /// Used by <see cref="DecoratorGeometry.RenderTargets"/> so an inside-pill selection
+        /// rectangle painted between the pill background and the glyphs is not erased by the
+        /// inner geometry re-filling the same background. Defaults to <see cref="Render"/>;
+        /// override in text geometries to skip the background fill.
+        /// </remarks>
+        public virtual void RenderForeground(DrawingContext ctx) => Render(ctx);
+
         internal void RequestRepaint() => RepaintRequested?.Invoke();
 
         public abstract TextPointer CalcuatePointerFrom(int index);

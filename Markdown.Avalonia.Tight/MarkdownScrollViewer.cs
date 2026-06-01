@@ -11,6 +11,7 @@ using Avalonia.Metadata;
 using Avalonia.Platform;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using ColorDocument.Avalonia;
 using ColorDocument.Avalonia.DocumentElements;
 using ColorTextBlock.Avalonia;
@@ -101,15 +102,25 @@ namespace Markdown.Avalonia
             public void OnError(Exception error) { }
             public void OnNext(AvaloniaPropertyChangedEventArgs<bool> value)
             {
-                if (value.Sender is not CTextBlock textBlock || textBlock.FindLogicalAncestorOfType<MarkdownScrollViewer>() is not { } markdownScrollViewer)
+                // Apply to inline-selectable text (CTextBlock) and to the inner
+                // TextBlock of a code block (tagged with CodeBlockClass).
+                Control? target = value.Sender switch
+                {
+                    CTextBlock ctb => ctb,
+                    TextBlock tb when tb.Classes.Contains(ClassNames.CodeBlockClass) => tb,
+                    _ => null
+                };
+                if (target is null
+                    || target.FindLogicalAncestorOfType<MarkdownScrollViewer>() is not { } markdownScrollViewer)
                     return;
+
                 if (markdownScrollViewer.SelectionEnabled && value.NewValue == true)
                 {
                     s_ibeamCursor ??= new Cursor(StandardCursorType.Ibeam);
-                    textBlock.Cursor = s_ibeamCursor;
+                    target.Cursor = s_ibeamCursor;
                 }
                 else
-                    textBlock.Cursor = markdownScrollViewer.Cursor;
+                    target.Cursor = markdownScrollViewer.Cursor;
             }
         }
 
@@ -249,6 +260,12 @@ namespace Markdown.Avalonia
 
                     this.Focus();
                     e.Pointer.Capture(_viewer);
+
+                    // While the drag-select is active, the captured target (_viewer)
+                    // owns the cursor. Show the I-beam so it doesn't snap to the
+                    // viewer's default as soon as the press happens.
+                    s_ibeamCursor ??= new Cursor(StandardCursorType.Ibeam);
+                    _viewer.Cursor = s_ibeamCursor;
                 }
             }
             else if (this.InputHitTest(point.Position) is ScrollContentPresenter)
@@ -290,6 +307,7 @@ namespace Markdown.Avalonia
                 _isLeftButtonPressed = false;
                 StopAutoScroll();
                 e.Pointer.Capture(null);
+                _viewer.Cursor = null;
 
                 if (_document is not null)
                 {
@@ -303,6 +321,7 @@ namespace Markdown.Avalonia
         {
             _isLeftButtonPressed = false;
             StopAutoScroll();
+            _viewer.Cursor = null;
         }
 
         private bool IsOutsideViewport(Point pointInViewer)
@@ -502,6 +521,9 @@ namespace Markdown.Avalonia
             {
                 _selectionBrush = brush;
             }
+
+            // Push the resolved brush down to any in-flight selection rectangles.
+            _wrapper?.ApplySelectionBrush();
         }
 
         private void UpdateMarkdown()
@@ -832,8 +854,24 @@ namespace Markdown.Avalonia
         {
             private MarkdownScrollViewer _viewer;
             private readonly Canvas _canvas;
-            private readonly Dictionary<Control, Rectangle> _rects;
+            private readonly Dictionary<Control, SelectionEntry> _rects;
             private DocumentElement? _document;
+
+            // null LocalRects means "fill the control bounds" (legacy whole-control selection)
+            private class SelectionEntry
+            {
+                public IReadOnlyList<Rect>? LocalRects;
+                public List<Rectangle> Visuals = new();
+            }
+
+            private class SelectionBrushObserver : IObserver<IBrush?>
+            {
+                private readonly Wrapper _wrapper;
+                public SelectionBrushObserver(Wrapper wrapper) { _wrapper = wrapper; }
+                public void OnCompleted() { }
+                public void OnError(Exception error) { }
+                public void OnNext(IBrush? value) => _wrapper.ApplySelectionBrush();
+            }
 
             public DocumentElement? Document
             {
@@ -856,6 +894,11 @@ namespace Markdown.Avalonia
                         LogicalChildren.Insert(0, _document.Control);
                         _document.Helper = this;
                         InvalidateMeasure();
+
+                        // Push the current viewer-level brush onto the freshly created
+                        // CTextBlocks. The viewer's StyledProperty doesn't inherit, so
+                        // we propagate explicitly each time a document is installed.
+                        ApplySelectionBrush();
                     }
                 }
             }
@@ -866,38 +909,102 @@ namespace Markdown.Avalonia
                 _canvas = new Canvas();
                 _canvas.PointerPressed += (s, e) => _document?.UnSelect();
 
-                _rects = new Dictionary<Control, Rectangle>();
+                _rects = new Dictionary<Control, SelectionEntry>();
 
                 VisualChildren.Add(_canvas);
+
+                // Keep existing selection rectangles in sync when the user-facing
+                // SelectionBrush property changes. The style-resource fallback
+                // (_selectionBrush) is pushed via ApplySelectionBrush() from
+                // TrySetupSelectionBrush() on the viewer.
+                _viewer.GetObservable(SelectionBrushProperty)
+                       .Subscribe(new SelectionBrushObserver(this));
+            }
+
+            public IBrush SelectionBrush => _viewer.ComputedSelectionBrush;
+
+            public event EventHandler? SelectionBrushChanged;
+
+            public void ApplySelectionBrush()
+            {
+                var brush = _viewer.ComputedSelectionBrush;
+
+                // 1. Update partial-text selection rectangles drawn by this Wrapper.
+                foreach (var entry in _rects.Values)
+                    foreach (var v in entry.Visuals)
+                        v.Fill = brush;
+
+                // 2. Propagate to every CTextBlock in the document. CTextBlock has its
+                // own (non-inheriting) SelectionBrush property — without this push,
+                // setting MarkdownScrollViewer.SelectionBrush would only change the
+                // overlay rectangles, not the native CTextBlock highlight.
+                if (_document?.Control is { } docCtrl)
+                    PropagateSelectionBrushTo(docCtrl, brush);
+
+                // 3. Notify document elements that paint their own selection
+                // (e.g. PlainCodeBlockElement's behind-text rectangles).
+                SelectionBrushChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            private static void PropagateSelectionBrushTo(Visual visual, IBrush brush)
+            {
+                if (visual is CTextBlock ctb)
+                    ctb.SelectionBrush = brush;
+
+                foreach (var child in visual.GetVisualChildren())
+                    PropagateSelectionBrushTo(child, brush);
             }
 
             public void Register(Control control)
             {
-                if (!_rects.ContainsKey(control))
+                if (_rects.ContainsKey(control))
+                    return;
+
+                var bounds = GetRectInDoc(control);
+                if (!bounds.HasValue)
+                    return;
+
+                var visual = CreateSelectionVisual(bounds.Value.Width, bounds.Value.Height);
+                Canvas.SetLeft(visual, bounds.Value.Left);
+                Canvas.SetTop(visual, bounds.Value.Top);
+
+                var entry = new SelectionEntry { LocalRects = null };
+                entry.Visuals.Add(visual);
+                _canvas.Children.Add(visual);
+                _rects[control] = entry;
+            }
+
+            public void Register(Control control, IEnumerable<Rect> rectsInControlSpace)
+            {
+                // Always rebuild — selection range typically changes on every pointer move.
+                Unregister(control);
+
+                var bounds = GetRectInDoc(control);
+                if (!bounds.HasValue)
+                    return;
+
+                var locals = rectsInControlSpace as IReadOnlyList<Rect> ?? new List<Rect>(rectsInControlSpace);
+                if (locals.Count == 0)
+                    return;
+
+                var entry = new SelectionEntry { LocalRects = locals };
+                foreach (var local in locals)
                 {
-                    var brush = _viewer.ComputedSelectionBrush;
-                    var bounds = GetRectInDoc(control);
-                    var rect = new Rectangle()
-                    {
-                        Width = bounds.Value.Width,
-                        Height = bounds.Value.Height,
-                        Fill = brush,
-                        Opacity = .5
-                    };
-
-                    Canvas.SetLeft(rect, bounds.Value.Left);
-                    Canvas.SetTop(rect, bounds.Value.Top);
-
-                    _rects[control] = rect;
-                    _canvas.Children.Add(rect);
+                    var visual = CreateSelectionVisual(local.Width, local.Height);
+                    Canvas.SetLeft(visual, bounds.Value.Left + local.X);
+                    Canvas.SetTop(visual, bounds.Value.Top + local.Y);
+                    entry.Visuals.Add(visual);
+                    _canvas.Children.Add(visual);
                 }
+                _rects[control] = entry;
             }
 
             public void Unregister(Control control)
             {
-                if (_rects.TryGetValue(control, out var rct))
+                if (_rects.TryGetValue(control, out var entry))
                 {
-                    _canvas.Children.Remove(rct);
+                    foreach (var v in entry.Visuals)
+                        _canvas.Children.Remove(v);
                     _rects.Remove(control);
                 }
             }
@@ -909,18 +1016,48 @@ namespace Markdown.Avalonia
 
             public void Restructure()
             {
-                foreach (var rct in _rects)
+                foreach (var pair in _rects)
                 {
-                    var boundN = GetRectInDoc(rct.Key);
-                    if (boundN.HasValue)
+                    var boundN = GetRectInDoc(pair.Key);
+                    if (!boundN.HasValue)
+                        continue;
+
+                    var bound = boundN.Value;
+                    var entry = pair.Value;
+
+                    if (entry.LocalRects is null)
                     {
-                        var bound = boundN.Value;
-                        rct.Value.Width = bound.Width;
-                        rct.Value.Height = bound.Height;
-                        Canvas.SetLeft(rct.Value, bound.Left);
-                        Canvas.SetTop(rct.Value, bound.Top);
+                        // Fill-control mode
+                        var v = entry.Visuals[0];
+                        v.Width = bound.Width;
+                        v.Height = bound.Height;
+                        Canvas.SetLeft(v, bound.Left);
+                        Canvas.SetTop(v, bound.Top);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < entry.LocalRects.Count; i++)
+                        {
+                            var local = entry.LocalRects[i];
+                            var v = entry.Visuals[i];
+                            v.Width = local.Width;
+                            v.Height = local.Height;
+                            Canvas.SetLeft(v, bound.Left + local.X);
+                            Canvas.SetTop(v, bound.Top + local.Y);
+                        }
                     }
                 }
+            }
+
+            private Rectangle CreateSelectionVisual(double width, double height)
+            {
+                return new Rectangle
+                {
+                    Width = width,
+                    Height = height,
+                    Fill = _viewer.ComputedSelectionBrush,
+                    Opacity = .5
+                };
             }
 
             public Rect? GetRectInDoc(Control control)

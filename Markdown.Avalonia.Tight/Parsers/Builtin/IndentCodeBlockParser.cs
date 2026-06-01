@@ -30,8 +30,8 @@ namespace Markdown.Avalonia.Parsers.Builtin
             parseTextEnd = firstMatch.Index + firstMatch.Length;
 
             var detentTxt = String.Join("\n", firstMatch.Groups[1].Value.Split('\n').Select(line => TextUtil.DetentLineBestEffort(line, 4)));
-            var border = FencedCodeBlockParser.Create(_newlinesLeadingTrailing.Replace(detentTxt, ""));
-            return new[] { new UnBlockElement(border) };
+            var code = _newlinesLeadingTrailing.Replace(detentTxt, "");
+            return new DocumentElement[] { new PlainCodeBlockElement(code) };
         }
     }
 }
