@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Logging;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using Serilog;
 
 namespace Markdown.AvaloniaDemo
@@ -33,6 +33,6 @@ namespace Markdown.AvaloniaDemo
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 //.LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(_ => { });
     }
 }

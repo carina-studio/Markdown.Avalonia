@@ -360,7 +360,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="#include &lt;stdio.h&gt;&#xA;int main()&#xA;{&#xA;   // printf() displays the string inside quotation&#xA;   printf(&quot;Hello, World!&quot;);&#xA;   return 0;&#xA;}" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="#include &lt;stdio.h&gt;&#xA;int main()&#xA;{&#xA;   // printf() displays the string inside quotation&#xA;   printf(&quot;Hello, World!&quot;);&#xA;   return 0;&#xA;}" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>

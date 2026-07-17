@@ -794,7 +794,12 @@
             <Border.Child>
               <ScrollViewer Classes="CodeBlock">
                 <ScrollViewer.Content>
-                  <TextBlock Text="as code" Classes="CodeBlock" />
+                  <Grid>
+                    <Canvas IsHitTestVisible="False" />
+                    <TextBlock Text="as code" Classes="CodeBlock" />
+                    <Grid.ColumnDefinitions />
+                    <Grid.RowDefinitions />
+                  </Grid>
                 </ScrollViewer.Content>
               </ScrollViewer>
             </Border.Child>
@@ -1112,7 +1117,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="code" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="code" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -1205,7 +1215,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="code" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="code" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>

@@ -4,6 +4,7 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Layout;
 using Avalonia.LogicalTree;
 using Avalonia.Media;

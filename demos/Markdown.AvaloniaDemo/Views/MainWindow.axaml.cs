@@ -15,9 +15,8 @@ namespace Markdown.AvaloniaDemo.Views
             InitializeComponent();
 
             _breadcrumb = this.FindControl<Label>("Breadcrumb");
-#if DEBUG
-            this.AttachDevTools();
-# endif
+            // Avalonia 12 removed the Avalonia.Diagnostics package (AttachDevTools).
+            // DevTools is now a separate app via AvaloniaUI.DiagnosticsSupport.
         }
 
         private void InitializeComponent()

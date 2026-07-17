@@ -1,10 +1,9 @@
-﻿using Avalonia.Threading;
-using NUnit.Framework.Interfaces;
+﻿using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Commands;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using UnitTest.Base;
 
 namespace UnitTest.Base.Utils
 {
@@ -22,30 +21,15 @@ namespace UnitTest.Base.Utils
 
             public override TestResult Execute(TestExecutionContext context)
             {
-                var dispatcher = Dispatcher.UIThread;
+                // Marshal the test body onto the headless session's UI thread.
+                var resultTask = UnitTestBase.Session.Dispatch(
+                    () => RunTest(context), CancellationToken.None);
+                resultTask.Wait();
 
-                if (dispatcher.CheckAccess())
-                {
-                    var result = RunTest(context);
+                if (resultTask.Result is Exception ex)
+                    throw ex;
 
-                    if (result is Exception ex)
-                        throw ex;
-
-                    return (TestResult)result;
-                }
-                else
-                {
-                    var resultTask = Dispatcher.UIThread.InvokeAsync<object>(() => RunTest(context));
-
-                    if (resultTask.Status != DispatcherOperationStatus.Aborted
-                     && resultTask.Status != DispatcherOperationStatus.Completed)
-                        resultTask.Wait();
-
-                    if (resultTask.Result is Exception ex)
-                        throw ex;
-
-                    return (TestResult)resultTask.Result;
-                }
+                return (TestResult)resultTask.Result;
             }
 
             private object RunTest(TestExecutionContext context)

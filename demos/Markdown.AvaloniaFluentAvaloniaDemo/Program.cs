@@ -1,6 +1,6 @@
 ﻿using System;
 using Avalonia;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace Markdown.AvaloniaFluentAvaloniaDemo
 {
@@ -17,6 +17,6 @@ namespace Markdown.AvaloniaFluentAvaloniaDemo
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 //.LogToTrace()
-                .UseReactiveUI();
+                .UseReactiveUI(_ => { });
     }
 }

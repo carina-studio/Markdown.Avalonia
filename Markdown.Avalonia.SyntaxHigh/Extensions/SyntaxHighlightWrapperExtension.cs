@@ -38,7 +38,7 @@ namespace Markdown.Avalonia.SyntaxHigh.Extensions
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             var dyExt = new DynamicResourceExtension(ForegroundName);
-            var brush = dyExt.ProvideValue(serviceProvider);
+            var brush = (BindingBase)dyExt.ProvideValue(serviceProvider);
 
             var tag = new Binding(nameof(TextEditor.Tag))
             {
@@ -52,7 +52,7 @@ namespace Markdown.Avalonia.SyntaxHigh.Extensions
 
             return new MultiBinding()
             {
-                Bindings = new IBinding[] { brush, provider, tag },
+                Bindings = new BindingBase[] { brush, provider, tag },
                 Converter = new SyntaxHighlightWrapperConverter()
             };
         }

@@ -7,5 +7,11 @@
     <PackageReference Include="ApprovalTests" Version="5.2.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+    <!-- Avalonia 12 forbids initializing the UI dispatcher on a background thread,
+         so tests run on a headless session instead. Skia + HarfBuzz give real
+         rendering for the image-based approval tests. -->
+    <PackageReference Include="Avalonia.Headless" Version="$(TestAvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Skia" Version="$(TestAvaloniaVersion)" />
+    <PackageReference Include="Avalonia.HarfBuzz" Version="$(TestAvaloniaVersion)" />
   </ItemGroup>
 </Project>

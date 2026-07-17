@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
+﻿<?xml version="1.0" encoding="utf-16"?>
 <StackPanel xmlns:c="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia" xmlns:m="https://github.com/whistyun/Markdown.Avalonia.Tight" xmlns:ma="https://github.com/whistyun/Markdown.Avalonia.Tight/Styles" xmlns:ma2="clr-namespace:Markdown.Avalonia.Controls;assembly=Markdown.Avalonia" xmlns:mas="https://github.com/whistyun/Markdown.Avalonia.SyntaxHigh" xmlns:mas2="https://github.com/whistyun/Markdown.Avalonia.SyntaxHigh/Styles" xmlns:a="https://github.com/avaloniaui/avaloniaedit" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="https://github.com/avaloniaui">
   <c:CTextBlock Classes="Heading1">
     <c:CCode>
@@ -9,7 +9,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="```cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}&#xA;```" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="```cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}&#xA;```" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -18,7 +23,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -30,7 +40,12 @@
           <Border.Child>
             <ScrollViewer Classes="CodeBlock">
               <ScrollViewer.Content>
-                <TextBlock Text="public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}" Classes="CodeBlock" />
+                <Grid>
+                  <Canvas IsHitTestVisible="False" />
+                  <TextBlock Text="public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}" Classes="CodeBlock" />
+                  <Grid.ColumnDefinitions />
+                  <Grid.RowDefinitions />
+                </Grid>
               </ScrollViewer.Content>
             </ScrollViewer>
           </Border.Child>
@@ -42,7 +57,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="   public void Main(){&#xA;       Console.WriteLine(&quot;`Hello World`&quot;);&#xA;   }" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="   public void Main(){&#xA;       Console.WriteLine(&quot;`Hello World`&quot;);&#xA;   }" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -51,7 +71,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="```cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}&#xA;```" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="```cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;`Hello World`&quot;);&#xA;}&#xA;```" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -65,7 +90,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>
@@ -92,7 +122,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>
@@ -119,7 +154,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>
@@ -140,7 +180,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="abcd&#xA;efgh" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="abcd&#xA;efgh" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -150,7 +195,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text=" abcd&#xA;efgh" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text=" abcd&#xA;efgh" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -160,7 +210,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="abcd&#xA; efgh&#xA;&#xA; ijkl&#xA;&#xA;opqr" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="abcd&#xA; efgh&#xA;&#xA; ijkl&#xA;&#xA;opqr" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -173,7 +228,12 @@
           <Border.Child>
             <ScrollViewer Classes="CodeBlock">
               <ScrollViewer.Content>
-                <TextBlock Text="asdf&#xA; ghij" Classes="CodeBlock" />
+                <Grid>
+                  <Canvas IsHitTestVisible="False" />
+                  <TextBlock Text="asdf&#xA; ghij" Classes="CodeBlock" />
+                  <Grid.ColumnDefinitions />
+                  <Grid.RowDefinitions />
+                </Grid>
               </ScrollViewer.Content>
             </ScrollViewer>
           </Border.Child>
@@ -190,7 +250,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>
@@ -217,7 +282,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>
@@ -244,7 +314,12 @@
         <Border.Child>
           <ScrollViewer Classes="CodeBlock">
             <ScrollViewer.Content>
-              <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+              <Grid>
+                <Canvas IsHitTestVisible="False" />
+                <TextBlock Text="public void Main(){&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;&#xA;}" Classes="CodeBlock" />
+                <Grid.ColumnDefinitions />
+                <Grid.RowDefinitions />
+              </Grid>
             </ScrollViewer.Content>
           </ScrollViewer>
         </Border.Child>

@@ -27,7 +27,7 @@ namespace Markdown.Avalonia.Extensions
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
-            IBinding left;
+            BindingBase left;
             if (Color.TryParse(_frmKey, out var leftColor))
             {
                 left = new Binding { Source = leftColor };
@@ -35,10 +35,10 @@ namespace Markdown.Avalonia.Extensions
             else
             {
                 var lftExt = new DynamicResourceExtension(_frmKey);
-                left = lftExt.ProvideValue(serviceProvider);
+                left = (BindingBase)lftExt.ProvideValue(serviceProvider);
             }
 
-            IBinding right;
+            BindingBase right;
             if (Color.TryParse(_toKey, out var rightColor))
             {
                 right = new Binding { Source = rightColor };
@@ -46,12 +46,12 @@ namespace Markdown.Avalonia.Extensions
             else
             {
                 var rgtExt = new DynamicResourceExtension(_toKey);
-                right = rgtExt.ProvideValue(serviceProvider);
+                right = (BindingBase)rgtExt.ProvideValue(serviceProvider);
             }
 
             return new MultiBinding()
             {
-                Bindings = new IBinding[] { left, right },
+                Bindings = new BindingBase[] { left, right },
                 Converter = new DivideConverter(_relate)
             };
         }

@@ -52,7 +52,9 @@ namespace Markdown.AvaloniaDemo.ViewModels
 
         public List<StyleViewModel> Styles { set; get; }
 
-        public void XamlParseResult(string result) => ErrorInfo = result;
+        // Avalonia 12 method-to-command binding requires a no-parameter or
+        // single-object overload, so accept object instead of string.
+        public void XamlParseResult(object result) => ErrorInfo = result?.ToString();
 
         public void TryParse() => AppendStyleXamlText = EdittingStyleXamlText;
 

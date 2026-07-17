@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageTargetFrameworks>net8.0;net9.0</PackageTargetFrameworks>
-    <DemoAppTargetFrameworks>net9.0</DemoAppTargetFrameworks>
+    <DemoAppTargetFrameworks>net10.0</DemoAppTargetFrameworks>
     <TestTargetFrameworks>net9.0</TestTargetFrameworks>
   </PropertyGroup>
 
@@ -11,11 +11,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AvaloniaVersion>11.0.0</AvaloniaVersion>
-    <DemoAvaloniaVersion>11.3.0-beta1</DemoAvaloniaVersion>
+    <AvaloniaVersion>12.0.2</AvaloniaVersion>
+    <DemoAvaloniaVersion>12.1.0</DemoAvaloniaVersion>
     <EnableAvaloniaEdit>enabled</EnableAvaloniaEdit>
-    <AvaloniaEditVersion>11.0.0</AvaloniaEditVersion>
-    <AvaloniaSvgVersion>11.0.0</AvaloniaSvgVersion>
+    <AvaloniaEditVersion>12.0.0</AvaloniaEditVersion>
+    <AvaloniaSvgVersion>12.0.0</AvaloniaSvgVersion>
+    <ReactiveUIAvaloniaVersion>12.0.3</ReactiveUIAvaloniaVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(AVA_VER)' != '' ">
@@ -26,7 +27,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageVersion>11.0.9.602</PackageVersion>
+    <PackageVersion>12.0.0.700</PackageVersion>
   </PropertyGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
+﻿<?xml version="1.0" encoding="utf-16"?>
 <StackPanel xmlns:c="clr-namespace:ColorTextBlock.Avalonia;assembly=ColorTextBlock.Avalonia" xmlns:m="https://github.com/whistyun/Markdown.Avalonia.Tight" xmlns:ma="https://github.com/whistyun/Markdown.Avalonia.Tight/Styles" xmlns:ma2="clr-namespace:Markdown.Avalonia.Controls;assembly=Markdown.Avalonia" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="https://github.com/avaloniaui">
   <Border Classes="CodeBlock,NoContainer" xmlns="">
     <Border.Child>
@@ -46,7 +46,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text=":::cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;:Hello World:&quot;);&#xA;}&#xA;:::" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text=":::cs&#xA;public void Main(){&#xA;    Console.WriteLine(&quot;:Hello World:&quot;);&#xA;}&#xA;:::" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>

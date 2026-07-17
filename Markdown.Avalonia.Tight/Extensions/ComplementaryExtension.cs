@@ -24,11 +24,11 @@ namespace Markdown.Avalonia.Extensions
         {
             var dyExt = new DynamicResourceExtension(_brushName);
 
-            var brush = dyExt.ProvideValue(serviceProvider);
+            var brush = (BindingBase)dyExt.ProvideValue(serviceProvider);
 
             return new MultiBinding()
             {
-                Bindings = new IBinding[] { brush },
+                Bindings = new BindingBase[] { brush },
                 Converter = new ComplementaryConverter()
             };
         }

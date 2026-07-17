@@ -597,7 +597,7 @@ namespace ColorTextBlock.Avalonia
 
                 indicator.Control.Arrange(new Rect(indicator.Left, indicator.Top, indicator.Width, indicator.Height));
             }
-            if (MathUtilities.AreClose(_constraint.Width, finalSize.Width))
+            if (AreClose(_constraint.Width, finalSize.Width))
             {
                 return finalSize;
             }
@@ -610,7 +610,7 @@ namespace ColorTextBlock.Avalonia
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (_measured.Width == 0d || !MathUtilities.AreClose(availableSize.Width, _constraint.Width) || _measureRequested)
+            if (_measured.Width == 0d || !AreClose(availableSize.Width, _constraint.Width) || _measureRequested)
             {
                 _measureRequested = false;
                 _constraint = availableSize;
@@ -1191,6 +1191,16 @@ namespace ColorTextBlock.Avalonia
 
                 return buffer.ToString();
             }
+        }
+
+        // Equivalent to the (now internal) Avalonia.Utilities.MathUtilities.AreClose.
+        private static bool AreClose(double value1, double value2)
+        {
+            if (value1 == value2) return true;
+            const double doubleEpsilon = 2.2204460492503131e-016;
+            double eps = (Math.Abs(value1) + Math.Abs(value2) + 10.0) * doubleEpsilon;
+            double delta = value1 - value2;
+            return -eps < delta && eps > delta;
         }
     }
 

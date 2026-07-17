@@ -8,6 +8,9 @@
     <TargetFrameworks>$(DemoAppTargetFrameworks)</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <Nullable>disable</Nullable>
+    <!-- Avalonia 12 makes compiled bindings the default; these demo views were
+         authored for reflection bindings, so keep the previous behavior. -->
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
@@ -17,8 +20,8 @@
     <PackageReference Include="Avalonia" Version="$(DemoAvaloniaVersion)" />
     <PackageReference Include="Avalonia.Themes.Simple" Version="$(DemoAvaloniaVersion)" />
     <PackageReference Include="Avalonia.Desktop" Version="$(DemoAvaloniaVersion)" />
-    <PackageReference Include="FluentAvaloniaUI" Version="2.0.5" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="$(DemoAvaloniaVersion)" />
+    <PackageReference Include="FluentAvaloniaUI" Version="3.0.0" />
+    <PackageReference Include="ReactiveUI.Avalonia" Version="$(ReactiveUIAvaloniaVersion)" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(DemoAvaloniaVersion)" />
     <None Remove="Assets\XamlTemplate.txt" />
   </ItemGroup>

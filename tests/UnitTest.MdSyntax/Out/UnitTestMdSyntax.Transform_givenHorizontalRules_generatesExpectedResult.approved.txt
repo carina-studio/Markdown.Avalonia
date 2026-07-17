@@ -11,7 +11,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="---" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="---" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -24,7 +29,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="- - -" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="- - -" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -40,7 +50,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="***" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="***" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -53,7 +68,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="* * *" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="* * *" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -69,7 +89,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="___" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="___" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
@@ -82,7 +107,12 @@
     <Border.Child>
       <ScrollViewer Classes="CodeBlock">
         <ScrollViewer.Content>
-          <TextBlock Text="_ _ _" Classes="CodeBlock" />
+          <Grid>
+            <Canvas IsHitTestVisible="False" />
+            <TextBlock Text="_ _ _" Classes="CodeBlock" />
+            <Grid.ColumnDefinitions />
+            <Grid.RowDefinitions />
+          </Grid>
         </ScrollViewer.Content>
       </ScrollViewer>
     </Border.Child>
