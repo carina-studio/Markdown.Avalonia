@@ -1182,14 +1182,34 @@ namespace ColorTextBlock.Avalonia
 
                 foreach (var inter in _intermediates)
                 {
-                    if (inter is TextLineGeometry itlg)
-                        buffer.Append(itlg.ToString());
+                    AppendAllText(buffer, inter);
                 }
 
                 if (end.Geometry is TextLineGeometry etlg)
                     buffer.Append(etlg.Text.Substring(etlg.Line.FirstTextSourceIndex, end.InternalIndex - etlg.Line.FirstTextSourceIndex));
 
                 return buffer.ToString();
+            }
+        }
+
+        // An intermediate metry is not always a bare TextLineGeometry: a decorated span
+        // (an inline code pill, which CSpan wraps in a Border as soon as it is given a
+        // padding, corner radius, border thickness, margin or box shadow) arrives as a
+        // DecoratorGeometry holding the real text geometries. ComplementIntermediate
+        // already looks through that nesting, so this has to as well - otherwise a
+        // selection spanning a pill silently drops everything inside it.
+        private static void AppendAllText(StringBuilder buffer, CGeometry metry)
+        {
+            switch (metry)
+            {
+                case TextLineGeometry tlg:
+                    buffer.Append(tlg.ToString());
+                    break;
+
+                case DecoratorGeometry deco:
+                    foreach (var target in deco.Targets)
+                        AppendAllText(buffer, target);
+                    break;
             }
         }
 
