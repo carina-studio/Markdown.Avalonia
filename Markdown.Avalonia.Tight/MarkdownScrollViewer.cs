@@ -138,6 +138,12 @@ namespace Markdown.Avalonia
 
         public MarkdownScrollViewer()
         {
+            // SelectionEnabled defaults to true, and only its setter keeps Focusable in
+            // step. Without this, a viewer that never assigns the property stays
+            // unfocusable, so Focus() on pointer-press does nothing, OnKeyDown never
+            // fires, and Ctrl/Cmd+C silently fails to copy the selection.
+            Focusable = _selectionEnabled;
+
             _plugins = new MdAvPlugins();
             _setup = Plugins.Info;
 

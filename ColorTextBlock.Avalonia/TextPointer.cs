@@ -43,8 +43,15 @@ namespace ColorTextBlock.Avalonia
             }
             else
             {
-                Index = charHit.FirstCharacterIndex - target.Line.FirstTextSourceIndex;
-                InternalIndex = charHit.FirstCharacterIndex;
+                // A hit inside the right half of a cluster comes back as a *trailing* hit:
+                // the caret belongs at FirstCharacterIndex + TrailingLength, not at
+                // FirstCharacterIndex. Folding it in matters most for a cluster longer than
+                // one char - an emoji is a surrogate pair, so ignoring TrailingLength left
+                // the index two characters behind the highlight and the emoji was never
+                // included in the copied range.
+                var caret = charHit.FirstCharacterIndex + charHit.TrailingLength;
+                Index = caret - target.Line.FirstTextSourceIndex;
+                InternalIndex = caret;
                 TrailingLength = charHit.TrailingLength;
             }
         }

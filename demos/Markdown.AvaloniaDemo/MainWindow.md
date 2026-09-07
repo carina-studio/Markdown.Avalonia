@@ -13,6 +13,12 @@ WPF window or usercontrol.
 *italic*, **bold**, ***bold-italic***, ~~strikethrough~~, __underline__ and %{color:red}color%.  
 %{color:blue}***~~__Mixing Text__~~***%
 
+### Emoji ###
+Keyword form: :grinning: :tada: :rocket: :books: :coffee:  
+Literal form: 😀 🎉 🚀 📚 ☕  
+Sequences and flags: 👨‍👩‍👦 👩‍💻 🇯🇵 🇫🇷  
+With decoration: **bold 😀**, ~~strikethrough 🐛~~ and %{color:red}colored ❤️%
+
 ### Link ###
 Links [Go to Google!](https://www.google.com)  
 Links with title [Go to Google!](https://www.google.com "google.")  
