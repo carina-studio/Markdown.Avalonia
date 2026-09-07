@@ -8,7 +8,7 @@
     <PackageId>CarinaStudio.Markdown.Avalonia.Svg</PackageId>
     <Version>$(PackageVersion)</Version>
     <Authors>grifsun; whistyun; Carina Studio</Authors>
-    <Copyright>Copyright (c) 2023 grifsun, whistyun, 2024 Carina Studio</Copyright>
+    <Copyright>Copyright (c) 2023 grifsun, whistyun, 2026 Carina Studio</Copyright>
     <PackageProjectUrl>https://github.com/carina-studio/Markdown.Avalonia</PackageProjectUrl>
     <PackageReadmeFile>Markdown.Avalonia.Svg.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
