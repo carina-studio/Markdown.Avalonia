@@ -4,6 +4,7 @@ using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -74,7 +75,7 @@ namespace Markdown.Avalonia.Extensions
             else if (values[0] is Color cl)
                 colL = cl;
             else
-                return values[0];
+                return AvaloniaProperty.UnsetValue;
 
             Color colR;
             if (values[1] is ISolidColorBrush br)
@@ -82,7 +83,7 @@ namespace Markdown.Avalonia.Extensions
             else if (values[1] is Color cr)
                 colR = cr;
             else
-                return values[0];
+                return new ImmutableSolidColorBrush(colL);
 
             static byte Calc(byte l, byte r, double d)
                 => (byte)(l * (1 - d) + r * d);

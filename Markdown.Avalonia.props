@@ -1,13 +1,10 @@
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <PackageTargetFrameworks>net8.0;net9.0</PackageTargetFrameworks>
+    <PackageTargetFrameworks>net8.0;net10.0</PackageTargetFrameworks>
+    <!-- net10.0 only: FluentAvaloniaUI 3.0.0 does not ship a net8.0 target. -->
     <DemoAppTargetFrameworks>net10.0</DemoAppTargetFrameworks>
-    <TestTargetFrameworks>net9.0</TestTargetFrameworks>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(IS_WHISTYUN_PC)' == 'Y' ">
-    <TestTargetFrameworks>netcoreapp3.1;net5;net6;net7</TestTargetFrameworks>
+    <TestTargetFrameworks>net8.0;net10.0</TestTargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,5 +28,3 @@
   </PropertyGroup>
 
 </Project>
-
-

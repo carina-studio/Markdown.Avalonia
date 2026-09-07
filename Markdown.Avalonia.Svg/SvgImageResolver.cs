@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Xml;
+﻿using Avalonia.Media;
 using Avalonia.Svg;
-using Avalonia.Media;
 using Markdown.Avalonia.Utils;
+using System;
+using System.IO;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Markdown.Avalonia.Svg
 {
